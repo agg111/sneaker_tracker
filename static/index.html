@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sneaker Monitor</title>
+  <style>
+    :root {
+      --primary: #333;
+      --secondary: #f5f5f5;
+      --accent: #f57575;
+      --border: #e0e0e0;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    body {
+      background-color: #f9f9f9;
+      color: var(--primary);
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    select, button {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background-color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    button {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      font-weight: 500;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-image {
+      height: 220px;
+      overflow: hidden;
+      background-color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .card:hover .card-image img {
+      transform: scale(1.05);
+    }
+    
+    .card-content {
+      padding: 16px;
+    }
+    
+    .brand {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    
+    .name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+    
+    .sizes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    
+    .size {
+      font-size: 11px;
+      padding: 4px 8px;
+      background-color: var(--secondary);
+      border-radius: 4px;
+    }
+    
+    .view-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
+    }
+    
+    .view-btn:hover {
+      background-color: #222;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #666;
+    }
+    
+    .error {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    .site-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .card-wrapper {
+      position: relative;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sneaker Monitor</h1>
+  </header>
+  
+  <div class="controls">
+    <select id="site-selector">
+      <option value="nike">Nike</option>
+      <option value="footlocker">Footlocker</option>
+    </select>
+    
+    <select id="limit-selector">
+      <option value="8">8 items</option>
+      <option value="12">12 items</option>
+      <option value="20" selected>20 items</option>
+    </select>
+    
+    <button id="fetch-btn">Fetch Sneakers</button>
+  </div>
+  
+  <div id="results">
+    <div class="loading">Select a site and click "Fetch Sneakers" to load data</div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const siteSelector = document.getElementById('site-selector');
+      const limitSelector = document.getElementById('limit-selector');
+      const fetchBtn = document.getElementById('fetch-btn');
+      const resultsContainer = document.getElementById('results');
+      
+      fetchBtn.addEventListener('click', () => {
+        fetchSneakers();
+      });
+      
+      async function fetchSneakers() {
+        const site = siteSelector.value;
+        const limit = limitSelector.value;
+        
+        resultsContainer.innerHTML = '<div class="loading">Loading sneakers...</div>';
+        
+        try {
+          const response = await fetch(`/api/sneakers/${site}?limit=${limit}`);
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch data: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          displaySneakers(data.sneakers);
+        } catch (error) {
+          resultsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+          console.error('Error fetching sneakers:', error);
+        }
+      }
+      
+      function displaySneakers(sneakers) {
+        if (!sneakers || sneakers.length === 0) {
+          resultsContainer.innerHTML = '<div class="loading">No sneakers found</div>';
+          return;
+        }
+        
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        
+        sneakers.forEach(sneaker => {
+          const card = createSneakerCard(sneaker);
+          grid.appendChild(card);
+        });
+        
+        resultsContainer.innerHTML = '';
+        resultsContainer.appendChild(grid);
+      }
+      
+      function createSneakerCard(sneaker) {
+        const cardWrapper = document.createElement('div');
+        cardWrapper.className = 'card-wrapper';
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        // Create site badge
+        const siteBadge = document.createElement('div');
+        siteBadge.className = 'site-badge';
+        siteBadge.textContent = sneaker.site;
+        cardWrapper.appendChild(siteBadge);
+        
+        // Create image container
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'card-image';
+        
+        const image = document.createElement('img');
+        image.src = sneaker.image_url;
+        image.alt = sneaker.name;
+        image.onerror = function() {
+          this.src = 'https://via.placeholder.com/300x220?text=Image+Not+Found';
+        };
+        
+        imageContainer.appendChild(image);
+        card.appendChild(imageContainer);
+        
+        // Create content container
+        const content = document.createElement('div');
+        content.className = 'card-content';
+        
+        // Add brand
+        const brand = document.createElement('div');
+        brand.className = 'brand';
+        brand.textContent = sneaker.brand;
+        content.appendChild(brand);
+        
+        // Add name
+        const name = document.createElement('div');
+        name.className = 'name';
+        name.textContent = sneaker.name;
+        content.appendChild(name);
+        
+        // Add price
+        const price = document.createElement('div');
+        price.className = 'price';
+        price.textContent = `$${sneaker.price.toFixed(2)}`;
+        content.appendChild(price);
+        
+        // Add sizes
+        if (sneaker.available_sizes && sneaker.available_sizes.length > 0) {
+          const sizesContainer = document.createElement('div');
+          sizesContainer.className = 'sizes';
+          
+          sneaker.available_sizes.forEach(size => {
+            const sizeElement = document.createElement('span');
+            sizeElement.className = 'size';
+            sizeElement.textContent = size;
+            sizesContainer.appendChild(sizeElement);
+          });
+          
+          content.appendChild(sizesContainer);
+        }
+        
+        // Add view button
+        const viewButton = document.createElement('a');
+        viewButton.className = 'view-btn';
+        viewButton.href = sneaker.product_url;
+        viewButton.target = '_blank';
+        viewButton.textContent = 'View Product';
+        content.appendChild(viewButton);
+        
+        card.appendChild(content);
+        cardWrapper.appendChild(card);
+        
+        return cardWrapper;
+      }
+    });
+  </script>
+</body>
+</html>
